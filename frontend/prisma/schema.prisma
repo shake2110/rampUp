@@ -1,0 +1,124 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  free
+  pro
+  free_trial_over
+}
+
+model Organization {
+  id                      String      @id @default(uuid())
+  created_at              DateTime    @default(now())
+  name                    String?
+  image_url               String?
+  allowed_responses_count Int?
+  plan                    Plan?
+  users                   User[]
+  interviews              Interview[]
+
+  @@map("organization")
+}
+
+model User {
+  id              String        @id
+  created_at      DateTime      @default(now())
+  email           String?
+  organization_id String?
+  organization    Organization? @relation(fields: [organization_id], references: [id])
+  interviews      Interview[]
+
+  @@map("user")
+}
+
+model Interviewer {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  agent_id    String?
+  name        String
+  description String
+  image       String
+  audio       String?
+  empathy     Int
+  exploration Int
+  rapport     Int
+  speed       Int
+  interviews  Interview[]
+
+  @@map("interviewer")
+}
+
+model Interview {
+  id              String       @id
+  created_at      DateTime     @default(now())
+  name            String?
+  description     String?
+  objective       String?
+  organization_id String?
+  organization    Organization? @relation(fields: [organization_id], references: [id])
+  user_id         String?
+  user            User?        @relation(fields: [user_id], references: [id])
+  interviewer_id  Int?
+  interviewer     Interviewer? @relation(fields: [interviewer_id], references: [id])
+  is_active       Boolean?     @default(true)
+  is_anonymous    Boolean?     @default(false)
+  is_archived     Boolean?     @default(false)
+  logo_url        String?
+  theme_color     String?
+  url             String?
+  readable_slug   String?
+  questions       Json?
+  quotes          Json[]
+  insights        String[]
+  respondents     String[]
+  question_count  Int?
+  response_count  Int?
+  time_duration   String?
+  is_resume_based Boolean?     @default(false)
+  responses       Response[]
+  feedbacks       Feedback[]
+
+  @@map("interview")
+}
+
+model Response {
+  id               Int       @id @default(autoincrement())
+  created_at       DateTime  @default(now())
+  interview_id     String?
+  interview        Interview? @relation(fields: [interview_id], references: [id])
+  name             String?
+  email            String?
+  call_id          String?
+  candidate_status String?
+  duration         Int?
+  details          Json?
+  analytics        Json?
+  is_analysed      Boolean?  @default(false)
+  is_ended         Boolean?  @default(false)
+  is_viewed        Boolean?  @default(false)
+  tab_switch_count Int?
+  tutor_state      String?   @default("WARM_INTRODUCTION")
+
+  @@map("response")
+}
+
+model Feedback {
+  id           Int       @id @default(autoincrement())
+  created_at   DateTime  @default(now())
+  interview_id String?
+  interview    Interview? @relation(fields: [interview_id], references: [id])
+  email        String?
+  feedback     String?
+  satisfaction Int?
+
+  @@map("feedback")
+}

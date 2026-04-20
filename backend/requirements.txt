@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+faster-whisper
+openai
+supabase
+python-dotenv
+pydantic
+pydantic-settings
+httpx
+gTTS
